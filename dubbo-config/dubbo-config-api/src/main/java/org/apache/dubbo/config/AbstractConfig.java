@@ -328,11 +328,15 @@ public abstract class AbstractConfig implements Serializable {
                         && !"getClass".equals(name)
                         && Modifier.isPublic(method.getModifiers())
                         && method.getParameterTypes().length == 0
-                        && isPrimitive(method.getReturnType())) {
+                        && isPrimitive(method.getReturnType())) {// 方法为获取基本类型，public 的 getting 方法。
+                    /**
+                    * 获取注解@parameter=true的值
+                    */
                     Parameter parameter = method.getAnnotation(Parameter.class);
-                    if (parameter == null || !parameter.attribute()) {
+                    if (parameter == null || !parameter.attribute()) {//!parameter.attribute()判断@Parameter(attribute = ?) ?:是不是true
                         continue;
                     }
+                    // 获得属性名
                     String key;
                     if (parameter.key().length() > 0) {
                         key = parameter.key();
@@ -340,12 +344,14 @@ public abstract class AbstractConfig implements Serializable {
                         int i = name.startsWith("get") ? 3 : 2;
                         key = name.substring(i, i + 1).toLowerCase() + name.substring(i + 1);
                     }
+                    // 获得属性值，存在则添加到 `parameters` 集合
                     Object value = method.invoke(config);
                     if (value != null) {
                         if (prefix != null && prefix.length() > 0) {
                             key = prefix + "." + key;
                         }
                         parameters.put(key, value);
+                        System.out.println(key+"="+value);
                     }
                 }
             } catch (Exception e) {

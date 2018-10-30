@@ -22,18 +22,36 @@ import java.io.Serializable;
 
 /**
  * @export
+ * @from：http://dubbo.apache.org/zh-cn/docs/user/references/xml/dubbo-argument.html
+ * 方法参数配置。
+ * 该标签为 <dubbo:method> 的子标签，用于方法参数的特征描述
+ * <dubbo:method name="findXxx" timeout="3000" retries="2">
+ *     <dubbo:argument index="0" callback="true" />
+ * </dubbo:method>
  */
 public class ArgumentConfig implements Serializable {
 
     private static final long serialVersionUID = -2165482463925213595L;
 
     //argument: index -1 represents not set
+    /**
+    *  如果index=-1代表没有设置
+    */
     private Integer index = -1;
 
     //argument type
+    /**
+    * 通过参数类型查找参数的index
+     * 与index二选一 ArgumentConfig PO类没有设置如何二选一，TODO 在逻辑代码中看如何实现
+    */
     private String type;
 
     //callback interface
+    /**
+    * 服务治理：
+     * 参数是否为callback接口，如果为callback，服务提供方将生成反向代理（what？），
+     * 可以从服务提供方反向调用消费方，通常用于事件推送.
+    */
     private Boolean callback;
 
     @Parameter(excluded = true)

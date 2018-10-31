@@ -294,6 +294,9 @@ public abstract class AbstractConfig implements Serializable {
                         throw new IllegalStateException(config.getClass().getSimpleName() + "." + key + " == null");
                     }
                     //方法为 #getParameters()
+                    /**
+                    * getParameters为map等缓存填充数据，可以进行动态拓展配置项，可以拓展出非 Dubbo 内置的逻辑。
+                    */
                 } else if ("getParameters".equals(name)
                         && Modifier.isPublic(method.getModifiers())
                         && method.getParameterTypes().length == 0

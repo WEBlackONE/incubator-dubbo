@@ -231,6 +231,7 @@ public abstract class AbstractConfig implements Serializable {
      *  * 总之就是屏蔽警告用的
      */
     /**
+     * @description: 将配置对象的属性，添加到参数集合
      * @param parameters:参数集合;该集合会用于 URL.parameters
      * @param config:配置对象
      * @param prefix:属性前缀。用于配置项添加到   parameters 中时的前缀。
@@ -287,6 +288,7 @@ public abstract class AbstractConfig implements Serializable {
                         }
                         //添加配置项到 parameters
                         parameters.put(key, str);
+                        System.out.println("kv:" + key + "\t" + str);
                         //当 `@Parameter.required = true` 时，校验配置项非空。
                     } else if (parameter != null && parameter.required()) {
                         throw new IllegalStateException(config.getClass().getSimpleName() + "." + key + " == null");
@@ -303,6 +305,7 @@ public abstract class AbstractConfig implements Serializable {
                         for (Map.Entry<String, String> entry : map.entrySet()) {
                             //将 map 添加到 parameters ，kv 格式为 prefix:entry.key entry.value 。
                             parameters.put(pre + entry.getKey().replace('-', '.'), entry.getValue());
+                            System.out.println("kv:"+pre + entry.getKey().replace('-', '.')+"\t"+entry.getValue());
                         }
                     }
                 }

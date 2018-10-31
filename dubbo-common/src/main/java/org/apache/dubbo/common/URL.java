@@ -26,14 +26,7 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -68,6 +61,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see java.net.URL
  * @see java.net.URI
  */
+/**
+* @description :所有配置最终都将转换为 URL 表示，并由服务提供方生成，经注册中心传递给消费方，各属性对应 URL 的参数，参见配置项一览表中的 "对应URL参数" 列。
+ * @result： protocol://username:password@host:port/path?key=value&key=value
+*/
 public /**final**/ class URL implements Serializable {
 
     private static final long serialVersionUID = -1985165475234910535L;
@@ -108,7 +105,7 @@ public /**final**/ class URL implements Serializable {
 
     // ==== cache ====
     /**
-    * 缓存部分 transient: 不会被序列化到
+    * transient: 不会被序列化到
     */
     private volatile transient Map<String, Number> numbers;
 
@@ -1465,6 +1462,27 @@ public /**final**/ class URL implements Serializable {
             return false;
         }
         return true;
+    }
+    /**
+     * Test:Collections.unmodifiableMap()方法
+    * 方法用于返回指定映射的不可修改视图。（返回的集合没有不能修改）
+    */
+    public static void main(String[] s) {
+        //object hash table
+        Hashtable<String,String> table = new Hashtable<String,String>();
+
+        // populate the table
+        table.put("key1", "value1");
+        table.put("key2", "value2");
+        table.put("key3", "value3");
+
+        System.out.println("Initial collection: "+table);
+
+        // create unmodifiable map
+        Map m = Collections.unmodifiableMap(table);
+
+        // try to modify the collection
+        m.put("key3", "value3");
     }
 
 }

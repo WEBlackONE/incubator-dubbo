@@ -498,32 +498,42 @@ public abstract class AbstractConfig implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
-
+    /**
+    * 将注解添加到配置对象中
+    */
     protected void appendAnnotation(Class<?> annotationClass, Object annotation) {
-        Method[] methods = annotationClass.getMethods();
+        Method[] methods = annotationClass.getMethods();//反射拿到类的方法
         for (Method method : methods) {
+            Class<?>[] parameterTypes = method.getParameterTypes();
             if (method.getDeclaringClass() != Object.class
-                    && method.getReturnType() != void.class
-                    && method.getParameterTypes().length == 0
-                    && Modifier.isPublic(method.getModifiers())
-                    && !Modifier.isStatic(method.getModifiers())) {
+                    && method.getReturnType() != void.class  //过滤返回不为void的方法
+                    && method.getParameterTypes().length == 0 //获得参数类型数量为O的方法（也就是无参方法）
+                    && Modifier.isPublic(method.getModifiers()) //过滤public方法
+                    && !Modifier.isStatic(method.getModifiers())) { //过滤静态方法
                 try {
+                    //方法名
                     String property = method.getName();
+                    //两个方法的特殊处理,因为都是描述interface用的
                     if ("interfaceClass".equals(property) || "interfaceName".equals(property)) {
                         property = "interface";
                     }
+                    //setXxx
                     String setter = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
                     Object value = method.invoke(annotation);
                     if (value != null && !value.equals(method.getDefaultValue())) {
+                        //方法返回类型(原始类型转为包装类型))
                         Class<?> parameterType = ReflectUtils.getBoxedClass(method.getReturnType());
+                        //filter和listener是String[]类型的，转为String
                         if ("filter".equals(property) || "listener".equals(property)) {
                             parameterType = String.class;
                             value = StringUtils.join((String[]) value, ",");
-                        } else if ("parameters".equals(property)) {
+                            //parameters转为键值一一对应的map
+                        } else if ("parameters".equals(property)) { //也有map - parameters的动态拓展
                             parameterType = Map.class;
                             value = CollectionUtils.toStringMap((String[]) value);
                         }
                         try {
+                            //对当前类的set方法进行注入，即将注解的属性注入当前对象
                             Method setterMethod = getClass().getMethod(setter, parameterType);
                             setterMethod.invoke(this, value);
                         } catch (NoSuchMethodException e) {

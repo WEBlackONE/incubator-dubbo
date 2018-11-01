@@ -27,7 +27,7 @@ import java.util.Map;
 
 
 /**
- * ApplicationConfig
+ * ApplicationConfig 应用信息配置
  *
  * @export
  */
@@ -36,54 +36,106 @@ public class ApplicationConfig extends AbstractConfig {
     private static final long serialVersionUID = 5508512956753757169L;
 
     // application name
+    /**
+    * 当前应用名称，用于注册中心计算应用间依赖关系 ->简单粗暴的讲就是个项目的识别标签
+    */
     private String name;
 
     // module version
+    /**
+    * 当前应用的版本
+    */
     private String version;
 
     // application owner
+    /**
+    * 应用负责人
+    */
     private String owner;
 
     // application's organization (BU)
+    /**
+    * 组织名称(BU或部门)->用于注册中心区分服务来源，此配置项建议不要使用autoconfig，直接写死在配置中
+    */
     private String organization;
 
     // architecture layer
+    /**
+    * 用于服务分层对应的架构
+    */
     private String architecture;
 
     // environment, e.g. dev, test or production
+    /**
+    * 应用环境:生产，开发，还是测试（develop/test/product）
+    */
     private String environment;
 
     // Java compiler
+    /**
+    * Java字节码编译器，用于动态类的生成，可选：jdk或javassist（属于性能优化部分）
+    */
     private String compiler;
 
     // logger
+    /**
+    * 日志输出方式。可选：slf4j,jcl,log4j,log4j2,jdk（属于性能优化部分）
+    */
     private String logger;
 
     // registry centers
+    /**
+    * 多个注册中心（List<RegistryConfig>）
+    */
     private List<RegistryConfig> registries;
 
     // monitor center
+    /**
+    * 监控中心（MonitorConfig）
+    */
     private MonitorConfig monitor;
 
     // is default or not
+    /**
+    * 是否默认 TODO 默认是什么节奏？
+     *
+    */
     private Boolean isDefault;
 
     // directory for saving thread dump
+    /**
+    * 用于保存线程转储的目录
+    */
     private String dumpDirectory;
 
     // whether to enable qos or not
+    /**
+    * 是否开启 QOS
+    */
     private Boolean qosEnable;
 
     // the qos port to listen
+    /**
+    * QOS 监听的端口
+    */
     private Integer qosPort;
 
-    // should we accept foreign ip or not?
+    // should we accept foreign ip or not
+    /**
+    * 是否接收国外IP
+    */
     private Boolean qosAcceptForeignIp;
 
     // customized parameters
+    /**
+    * 自定义参数；用于拓展非dubbo的属性
+    */
     private Map<String, String> parameters;
 
     //config the shutdown.wait
+    /**
+    * 用于dubbo的优雅停机
+    */
     private String shutwait;
 
 

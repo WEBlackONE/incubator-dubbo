@@ -107,22 +107,28 @@ public class ApplicationConfig extends AbstractConfig {
     * 用于保存线程转储的目录
     */
     private String dumpDirectory;
-
+    /**
+     * QoS，全称为Quality of Service
+    * 在Dubbo中，QoS这个概念被用于动态的对服务进行查询和控制。
+     * 例如：对获取当前提供和消费的所有服务，以及对服务进行动态的上下线，即从注册中心上进行注册和反注册操作。
+    */
     // whether to enable qos or not
     /**
-    * 是否开启 QOS
+    * 是否启动QoS（默认为true）
     */
     private Boolean qosEnable;
 
     // the qos port to listen
     /**
-    * QOS 监听的端口
+    * 启动QoS绑定的端口（默认为22222）
     */
     private Integer qosPort;
 
     // should we accept foreign ip or not
     /**
-    * 是否接收国外IP
+    * 是否允许远程访问（默认是false）
+     * 注意，从2.6.4/2.7.0开始，qosAcceptForeignIp默认配置改为false，
+     * 如果qosAcceptForeignIp设置为true，有可能带来安全风险，请仔细评估后再打开。
     */
     private Boolean qosAcceptForeignIp;
 

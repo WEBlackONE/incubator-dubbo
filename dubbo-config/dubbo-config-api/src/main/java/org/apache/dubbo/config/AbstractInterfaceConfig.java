@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * AbstractDefaultConfig
+ * AbstractDefaultConfig 抽象接口配置类
  *
  * @export
  */
@@ -51,24 +51,82 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     private static final long serialVersionUID = -1559314110797223229L;
 
     // local impl class name for the service interface
+
+    /**
+     * @Deprecated 废弃
+     * local impl class name for the service interface
+     * 服务接口客户端本地代理类名，用于在客户端执行本地逻辑，如本地缓存等。
+     *
+     * 该本地代理类的构造函数必须允许传入远程代理对象，构造函数如：public XxxServiceLocal(XxxService xxxService)
+     *
+     * 设为 true，表示使用缺省代理类名，即：接口名 + Local 后缀
+     */
     protected String local;
 
     // local stub class name for the service interface
+    /**
+     * local stub class name for the service interface
+     * 服务接口客户端本地代理类名，用于在客户端执行本地逻辑，如本地缓存等。
+     *
+     * 该本地代理类的构造函数必须允许传入远程代理对象，构造函数如：public XxxServiceStub(XxxService xxxService)
+     *
+     * 设为 true，表示使用缺省代理类名，即：接口名 + Stub 后缀
+     *
+     * 参见dubbo文档 http://dubbo.apache.org/zh-cn/docs/user/demos/local-stub.html
+     */
     protected String stub;
 
     // service monitor
+    /**
+    * 服务监控中心
+    */
     protected MonitorConfig monitor;
 
     // proxy type
+    /**
+    * 生成动态代理方式
+     * 可选：jdk/javassist
+     * 缺省：javassist
+    */
     protected String proxy;
 
     // cluster type
+    /**
+     * @from: https://blog.csdn.net/bluetjs/article/details/52965260
+    * 常见容错机制，可选：failover/failfast/failsafe/failback/forking
+     * Failover 失败自动切换
+     * 当出现失败，重试其它服务器，通常用于读操作（推荐使用）。 重试会带来更长延迟。
+     *
+     * Failfast  快速失败
+     * 只发起一次调用，失败立即报错,通常用于非幂等性的写操作。 如果有机器正在重启，可能会出现调用失败 。
+     *
+     * Failsafe 失败安全
+     * 出现异常时，直接忽略，通常用于写入审计日志等操作。 调用信息丢失 可用于生产环境 Monitor。
+     *
+     * Failback  失败自动恢复
+     * 后台记录失败请求，定时重发。通常用于消息通知操作 不可靠，重启丢失。 可用于生产环境 Registry。
+     *
+     * Forking  并行调用多个服务器
+     * 只要一个成功即返回，通常用于实时性要求较高的读操作。 需要浪费更多服务资源   。
+     *
+     * Broadcast
+     * 广播调用，所有提供逐个调用，任意一台报错则报错。通常用于更新提供方本地状态 速度慢，任意一台报错则报错 。
+     *
+     *
+     * 在实际项目中，生产环境中，我们用failover模式时可以这样设计服务接口，遵循接口隔离原则 ，查询服务与写操作服务隔离，
+    */
     protected String cluster;
 
     // filter
+    /**
+    * 服务提供方远程调用过程过滤器名称，多个名称用逗号分隔
+    */
     protected String filter;
 
     // listener
+    /**
+    * 服务提供方导出服务监听器名称，多个名称用逗号分隔
+    */
     protected String listener;
 
     // owner
@@ -76,9 +134,18 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     // connection limits, 0 means shared connection, otherwise it defines the connections delegated to the
     // current service
+    /**
+    * 对每个提供者的最大连接数
+     * rmi、http、hessian等短连接协议表示限制连接数，dubbo等长连接协表示建立的长连接个数
+     * 缺省：100
+    */
     protected Integer connections;
 
     // layer
+    /**
+    * 服务提供者所在的分层。
+     * 如：biz、dao、intl:web、china:acton。
+    */
     protected String layer;
 
     // application info
@@ -100,12 +167,20 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     private Integer callbacks;
 
     // the scope for referring/exporting a service, if it's local, it means searching in current JVM only.
+    /**
+    * 引用/导出服务的范围(如果是本地的)意味着只在当前JVM中进行搜索。
+    */
     private String scope;
-
+    /**
+    * 初始化注册信息
+    */
     protected void checkRegistry() {
         // for backward compatibility
+        /**
+        * 为了向后兼容
+        */
         if (registries == null || registries.isEmpty()) {
-            String address = ConfigUtils.getProperty("dubbo.registry.address");
+            String address = ConfigUtils.getProperty("dubbo.registry.address");//从System中获取,为空时通过loader.getDefaultExtensionName()获取默认值
             if (address != null && address.length() > 0) {
                 registries = new ArrayList<RegistryConfig>();
                 String[] as = address.split("\\s*[|]+\\s*");
@@ -125,6 +200,9 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                     + Version.getVersion()
                     + ", Please add <dubbo:registry address=\"...\" /> to your spring config. If you want unregister, please set <dubbo:service registry=\"N/A\" />");
         }
+        /**
+        * 读取环境变量和 properties 配置到 RegistryConfig 对象数组。
+        */
         for (RegistryConfig registryConfig : registries) {
             appendProperties(registryConfig);
         }

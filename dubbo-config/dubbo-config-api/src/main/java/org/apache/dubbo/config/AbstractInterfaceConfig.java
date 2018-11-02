@@ -339,17 +339,27 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
         return null;
     }
-
+    /**
+     * 校验接口和方法
+     *  1. 接口类非空，并是接口
+     *  2. 方法在接口中已定义
+     *
+     * @param interfaceClass 接口类
+     * @param methods 方法数组
+     */
     protected void checkInterfaceAndMethods(Class<?> interfaceClass, List<MethodConfig> methods) {
         // interface cannot be null
+        //接口不能为null
         if (interfaceClass == null) {
             throw new IllegalStateException("interface not allow null!");
         }
         // to verify interfaceClass is an interface
+        //验证interfaceClass是一个接口
         if (!interfaceClass.isInterface()) {
             throw new IllegalStateException("The interface class " + interfaceClass + " is not a interface!");
         }
         // check if methods exist in the interface
+        //检查方法是否再接口中存在
         if (methods != null && !methods.isEmpty()) {
             for (MethodConfig methodBean : methods) {
                 String methodName = methodBean.getName();

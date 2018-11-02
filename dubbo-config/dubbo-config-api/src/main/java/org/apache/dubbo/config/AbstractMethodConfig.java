@@ -23,7 +23,7 @@ import org.apache.dubbo.rpc.cluster.LoadBalance;
 import java.util.Map;
 
 /**
- * AbstractMethodConfig
+ * AbstractMethodConfig 方法级配置的抽象类
  *
  * @export
  */
@@ -32,36 +32,69 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
     private static final long serialVersionUID = 1L;
 
     // timeout for remote invocation in milliseconds
+    /**
+    * 远程调用超时(以毫秒为单位)
+    */
     protected Integer timeout;
 
     // retry times
+    /**
+    * 重试次数
+    */
     protected Integer retries;
 
     // max concurrent invocations
+    /**
+    * 最大并发调用数量
+    */
     protected Integer actives;
 
     // load balance
+    /**
+    * 负载均衡
+    */
     protected String loadbalance;
 
     // whether to async
+    /**
+    * 是否异步
+    */
     protected Boolean async;
 
     // whether to ack async-sent
+    /**
+    * 是否ack异步发送
+    */
     protected Boolean sent;
 
     // the name of mock class which gets called when a service fails to execute
+    /**
+    * 模拟类的名称，当服务未能执行时调用该类 TODO CAN NOT UNDERSTAND THIS
+    */
     protected String mock;
 
     // merger
+    /**
+    * 合并 TODO CAN NOT UNDERSTAND THIS
+    */
     protected String merger;
 
     // cache
+    /**
+    * 缓存
+    */
     protected String cache;
 
     // validation
+    /**
+    * 校验
+    */
     protected String validation;
 
     // customized parameters
+    /**
+    * 自定义参数
+    */
     protected Map<String, String> parameters;
 
     public Integer getTimeout() {

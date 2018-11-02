@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * AbstractServiceConfig
+ * AbstractServiceConfig-抽象服务配置类
  *
  * @export
  */
@@ -33,47 +33,113 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
     private static final long serialVersionUID = 1L;
 
     // version
+    /**
+    * 服务版本
+     * 建议使用两位数字版本，如：1.0，通常在接口不兼容时版本号才需要升级
+    */
     protected String version;
 
     // group
+    /**
+    * 服务分组
+     * 当一个接口有多个实现，可以用分组区分
+    */
     protected String group;
 
     // whether the service is deprecated
+    /**
+    * 服务是否废弃
+    */
     protected Boolean deprecated;
 
     // delay service exporting
+    /**
+    * 延迟注册服务时间(毫秒)
+     * 设为-1时，表示延迟到Spring容器初始化完成时暴露服务
+    */
     protected Integer delay;
 
     // whether to export the service
+    /**
+    * 是否暴露服务
+    */
     protected Boolean export;
 
     // weight
+    /**
+    * 服务权重
+    */
     protected Integer weight;
 
     // document center
+    /**
+    * 	服务文档URL
+    */
     protected String document;
 
     // whether to register as a dynamic service or not on register center
+    /**
+     * 是否在注册中心注册为动态服务
+    *注册后将显示后disable状态
+     * 需人工启用，并且服务提供者停止时，也不会自动取消册，需人工禁用。
+     * 默认为true
+     *
+    */
     protected Boolean dynamic;
 
     // whether to use token
+    /**
+    * 令牌验证
+     * 为空表示不开启
+     * 如果为true，表示随机生成动态令牌，否则使用静态令牌
+     * 令牌的作用是防止消费者绕过注册中心直接访问，保证注册中心的授权功能有效
+     * 如果使用点对点调用，需关闭令牌功能
+     * 缺省为：false
+    */
     protected String token;
 
     // access log
+    /**
+     * 访问日志
+    * 设为true，将向logger中输出访问日志，也可填写访问日志文件路径，直接把访问日志输出到指定文件
+     * 缺省：false
+    */
     protected String accesslog;
+
+    /**
+    * 使用指定的协议暴露服务
+     * 在多协议时使用，值为<dubbo:protocol>的id属性，多个协议ID用逗号分隔
+    */
     protected List<ProtocolConfig> protocols;
     // max allowed execute times
+    /**
+    * 最大允许执行时间
+    */
     private Integer executes;
     // whether to register
+    /**
+    *该协议的服务是否注册到注册中心
+    */
     private Boolean register;
 
     // warm up period
+    /**
+    * TODO 预热阶段是个什么鬼？
+    */
     private Integer warmup;
 
     // serialization
+    /**
+    * 协议序列化方式
+     * 当协议支持多种序列化方式时使用
+     * 比如：dubbo协议的dubbo,hessian2,java,compactedjava，以及http协议的json,xml等
+    */
     private String serialization;
 
     // provider tag
+    /**
+    *提供者标记
+    */
     protected String tag;
 
     public String getVersion() {

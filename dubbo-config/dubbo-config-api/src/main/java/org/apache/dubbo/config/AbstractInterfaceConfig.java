@@ -209,6 +209,11 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     @SuppressWarnings("deprecation")
+    //不推荐使用
+    /**
+     * 校验 ApplicationConfig 配置。
+     * 实际上，该方法会初始化 ApplicationConfig 的配置属性。
+     */
     protected void checkApplication() {
         // for backward compatibility
         if (application == null) {
@@ -221,8 +226,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
             throw new IllegalStateException(
                     "No such application config! Please add <dubbo:application name=\"...\" /> to your spring config.");
         }
+        // 读取环境变量和 properties 配置到 ApplicationConfig 对象。
         appendProperties(application);
-
+        //初始化优雅停机的超时时长 默认是10s
+        //优雅停机：[dubbo-示例-优雅停机](http://dubbo.apache.org/zh-cn/docs/user/demos/graceful-shutdown.html)
         String wait = ConfigUtils.getProperty(Constants.SHUTDOWN_WAIT_KEY);
         if (wait != null && wait.trim().length() > 0) {
             System.setProperty(Constants.SHUTDOWN_WAIT_KEY, wait.trim());

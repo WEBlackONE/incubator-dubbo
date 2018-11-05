@@ -62,8 +62,8 @@ import static org.apache.dubbo.common.utils.NetUtils.isInvalidLocalHost;
 import static org.apache.dubbo.common.utils.NetUtils.isInvalidPort;
 
 /**
- * ServiceConfig
- *
+ * ServiceConfig：http://dubbo.apache.org/zh-cn/docs/user/references/xml/dubbo-service.html
+ * 服务提供者暴露服务配置
  * @export
  */
 public class ServiceConfig<T> extends AbstractServiceConfig {
@@ -75,12 +75,33 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private static final ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
 
     private static final Map<String, Integer> RANDOM_PORT_MAP = new HashMap<String, Integer>();
-
+    /**
+     * 延迟暴露执行器
+     */
     private static final ScheduledExecutorService delayExportExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("DubboServiceDelayExporter", true));
+    /**
+     * 服务配置对应的 Dubbo URL 数组
+     *
+     * 非配置。
+     */
     private final List<URL> urls = new ArrayList<URL>();
+    /**
+     * 服务配置暴露的 Exporter 。
+     * URL ：Exporter 不一定是 1：1 的关系。
+     * 例如 {@link #scope} 未设置时，会暴露 Local + Remote 两个，也就是 URL ：Exporter = 1：2
+     *      {@link #scope} 设置为空时，不会暴露，也就是 URL ：Exporter = 1：0
+     *      {@link #scope} 设置为 Local 或 Remote 任一时，会暴露 Local 或 Remote 一个，也就是 URL ：Exporter = 1：1
+     *
+     * 非配置。
+     */
     private final List<Exporter<?>> exporters = new ArrayList<Exporter<?>>();
     // interface type
     private String interfaceName;
+    /**
+     * {@link #interfaceName} 对应的接口类
+     *
+     * 非配置
+     */
     private Class<?> interfaceClass;
     // reference to interface impl
     private T ref;
@@ -89,8 +110,17 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     // method configuration
     private List<MethodConfig> methods;
     private ProviderConfig provider;
+    /**
+     * 是否已经暴露服务，参见 {@link #doExport()} 方法。
+     *
+     * 非配置。
+     */
     private transient volatile boolean exported;
-
+    /**
+     * 是否已取消暴露服务，参见 {@link #unexport()} 方法。
+     *
+     * 非配置。
+     */
     private transient volatile boolean unexported;
 
     private volatile String generic;
@@ -191,7 +221,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         return unexported;
     }
 
+    /**
+    * 暴露服务
+    */
     public synchronized void export() {
+        // 当 export 或者 delay 为null，从 ProviderConfig 对象读取。
         if (provider != null) {
             if (export == null) {
                 export = provider.getExport();
@@ -200,10 +234,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 delay = provider.getDelay();
             }
         }
+        // 不暴露服务( export = false ) ，则不进行暴露服务逻辑。
         if (export != null && !export) {
             return;
         }
-
+        // 延迟暴露
         if (delay != null && delay > 0) {
             delayExportExecutor.schedule(new Runnable() {
                 @Override
@@ -211,6 +246,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                     doExport();
                 }
             }, delay, TimeUnit.MILLISECONDS);
+            // 立即暴露
         } else {
             doExport();
         }

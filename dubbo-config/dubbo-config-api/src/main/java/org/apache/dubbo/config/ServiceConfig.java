@@ -70,10 +70,22 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
     private static final long serialVersionUID = 3033787999037024738L;
 
+    /**
+     * From：[Dubbo源码阅读笔记1]（https://www.cnblogs.com/amwyyyy/p/8353504.html）
+     * 获取自适应扩展点
+     * 自适应扩展点和普通扩展点的区别是：普通扩展点的实现类是确定的，自适应扩展点的实现类会根据参数不同变化
+     * 这里自适应扩展点用了字节码生成代理类来优化性能，使用动态代理应该也可以实现
+     */
     private static final Protocol protocol = ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension();
-
+    /**
+     * From：[Dubbo源码阅读笔记1]（https://www.cnblogs.com/amwyyyy/p/8353504.html）
+    * 代理工厂，用来生成代理类
+    */
     private static final ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
-
+    /**
+     * From：[Dubbo源码阅读笔记1]（https://www.cnblogs.com/amwyyyy/p/8353504.html）
+    * 保存随机生成的端口号
+    */
     private static final Map<String, Integer> RANDOM_PORT_MAP = new HashMap<String, Integer>();
     /**
      * 延迟暴露执行器
@@ -105,10 +117,19 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private Class<?> interfaceClass;
     // reference to interface impl
     private T ref;
+
     // service name
+    /**
+    *  服务名称
+    */
     private String path;
+
     // method configuration
+    /**
+    *  /方法配置
+    */
     private List<MethodConfig> methods;
+
     private ProviderConfig provider;
     /**
      * 是否已经暴露服务，参见 {@link #doExport()} 方法。
@@ -122,7 +143,13 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
      * 非配置。
      */
     private transient volatile boolean unexported;
-
+    /**
+     * From：[Dubbo源码阅读笔记1]（https://www.cnblogs.com/amwyyyy/p/8353504.html）
+    * 是否泛化引用
+     * @From：[dubbo文档-示例-泛化引用](http://dubbo.apache.org/zh-cn/docs/user/demos/generic-reference.html)
+     * 泛化接口调用方式主要用于客户端没有 API 接口及模型类元的情况，参数及返回值中的所有 POJO 均用 Map 表示，通常用于框架集成
+     * 比如：实现一个通用的服务测试框架，可通过 GenericService 调用所有服务实现。
+    */
     private volatile String generic;
 
     public ServiceConfig() {
@@ -222,10 +249,10 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     }
 
     /**
-    * 暴露服务
+    * 暴露服务 同步方法
     */
     public synchronized void export() {
-        // 当 export 或者 delay 为null，从 ProviderConfig 对象读取。
+        // 当 export 或者 delay 为null，从 ProviderConfig 对象读取。 @ sjt 1
         if (provider != null) {
             if (export == null) {
                 export = provider.getExport();
@@ -234,11 +261,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 delay = provider.getDelay();
             }
         }
-        // 不暴露服务( export = false ) ，则不进行暴露服务逻辑。
-        if (export != null && !export) {
+        // 不暴露服务( export = false ) ，则不进行暴露服务逻辑。@ sjt 2
+        if (export != null && !export) { //
             return;
         }
-        // 延迟暴露
+        // //延迟暴露 通过delay参数配置的，延迟暴露，放入单独线程中。@sjt 3
         if (delay != null && delay > 0) {
             delayExportExecutor.schedule(new Runnable() {
                 @Override
@@ -246,24 +273,31 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                     doExport();
                 }
             }, delay, TimeUnit.MILLISECONDS);
-            // 立即暴露
+            // 立即暴露 @sjt 4
         } else {
             doExport();
         }
     }
-
+    /**
+    * 检查填充配置项，按优先级覆盖
+    */
     protected synchronized void doExport() {
+        //如果取消暴露服务，直接抛异常
         if (unexported) {
             throw new IllegalStateException("Already unexported!");
         }
+        //如果已经暴露服务，直接返回
         if (exported) {
             return;
         }
         exported = true;
+        // 校验接口名非空
         if (interfaceName == null || interfaceName.length() == 0) {
             throw new IllegalStateException("<dubbo:service interface=\"\" /> interface not allow null!");
         }
+        // 拼接属性配置（环境变量 + properties 属性）到 ProviderConfig 对象
         checkDefault();
+        // 从 ProviderConfig 对象中，读取 application、module、registries、monitor、protocols 配置对象。
         if (provider != null) {
             if (application == null) {
                 application = provider.getApplication();
@@ -281,6 +315,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 protocols = provider.getProtocols();
             }
         }
+        // 从 ModuleConfig 对象中，读取 registries、monitor 配置对象。
         if (module != null) {
             if (registries == null) {
                 registries = module.getRegistries();
@@ -289,6 +324,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 monitor = module.getMonitor();
             }
         }
+        // 从 ApplicationConfig 对象中，读取 registries、monitor 配置对象。
         if (application != null) {
             if (registries == null) {
                 registries = application.getRegistries();
@@ -297,11 +333,13 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 monitor = application.getMonitor();
             }
         }
+        // 泛化接口的实现
         if (ref instanceof GenericService) {
             interfaceClass = GenericService.class;
             if (StringUtils.isEmpty(generic)) {
                 generic = Boolean.TRUE.toString();
             }
+            // 普通接口的实现
         } else {
             try {
                 interfaceClass = Class.forName(interfaceName, true, Thread.currentThread()
@@ -309,10 +347,13 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
+            // 最后处理ServiceConfig，优先级最高
             checkInterfaceAndMethods(interfaceClass, methods);
+            // 校验指向的 service 对象
             checkRef();
             generic = Boolean.FALSE.toString();
         }
+        // 处理服务接口客户端本地代理( `local` )相关。实际目前已经废弃，使用 `stub` 属性，参见 `AbstractInterfaceConfig#setLocal` 方法。
         if (local != null) {
             if ("true".equals(local)) {
                 local = interfaceName + "Local";
@@ -327,7 +368,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 throw new IllegalStateException("The local implementation class " + localClass.getName() + " not implement interface " + interfaceName);
             }
         }
+        // 处理服务接口客户端本地代理( `stub` )相关
         if (stub != null) {
+            // 设为 true，表示使用缺省代理类名，即：接口名 + Stub 后缀
             if ("true".equals(stub)) {
                 stub = interfaceName + "Stub";
             }
@@ -341,16 +384,31 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 throw new IllegalStateException("The stub implementation class " + stubClass.getName() + " not implement interface " + interfaceName);
             }
         }
-        checkApplication();
-        checkRegistry();
-        checkProtocol();
-        appendProperties(this);
-        checkStubAndMock(interfaceClass);
+             // 校验 ApplicationConfig 配置。
+             checkApplication();
+             // 校验 RegistryConfig 配置。
+             checkRegistry();
+            // 校验 ProtocolConfig 配置数组。
+            checkProtocol();
+             // 读取环境变量和 properties 配置到 ServiceConfig 对象。
+            appendProperties(this);
+             // 校验 Stub 和 Mock 相关的配置
+             checkStubAndMock(interfaceClass);
+            // 服务路径，缺省为接口名
         if (path == null || path.length() == 0) {
             path = interfaceName;
         }
+        // 暴露服务
         doExportUrls();
+        /**
+         * @From：[Dubbo源码阅读笔记1]（https://www.cnblogs.com/amwyyyy/p/8353504.html）
+        * 把要服务提供者信息封装成model，并设置方法可见性
+        */
         ProviderModel providerModel = new ProviderModel(getUniqueServiceName(), ref, interfaceClass);
+        /**
+         * @From：[Dubbo源码阅读笔记1]（https://www.cnblogs.com/amwyyyy/p/8353504.html）
+        * 放进全局的context中
+        */
         ApplicationModel.initProviderModel(getUniqueServiceName(), providerModel);
     }
 
@@ -730,7 +788,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         }
         return port;
     }
-
+    /**
+    *  拼接属性配置（环境变量 + properties 属性）到 ProviderConfig 对象
+    */
     private void checkDefault() {
         if (provider == null) {
             provider = new ProviderConfig();
@@ -873,6 +933,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         this.protocols = convertProviderToProtocol(providers);
     }
 
+    /**
+    * 用于：qos:StringBuf拼接 group/interfaceName:version
+    */
     @Parameter(excluded = true)
     public String getUniqueServiceName() {
         StringBuilder buf = new StringBuilder();

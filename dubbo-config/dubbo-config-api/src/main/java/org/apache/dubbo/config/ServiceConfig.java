@@ -295,7 +295,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if (interfaceName == null || interfaceName.length() == 0) {
             throw new IllegalStateException("<dubbo:service interface=\"\" /> interface not allow null!");
         }
-        // 拼接属性配置（环境变量 + properties 属性）到 ProviderConfig 对象
+        // 拼接属性配置（环境变量 + properties 属性）到 ProviderConfig 对象 @sjt 1
         checkDefault();
         // 从 ProviderConfig 对象中，读取 application、module、registries、monitor、protocols 配置对象。
         if (provider != null) {
@@ -333,7 +333,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 monitor = application.getMonitor();
             }
         }
-        // 泛化接口的实现
+        // 泛化接口的实现 @sjt 2
         if (ref instanceof GenericService) {
             interfaceClass = GenericService.class;
             if (StringUtils.isEmpty(generic)) {
@@ -353,7 +353,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             checkRef();
             generic = Boolean.FALSE.toString();
         }
-        // 处理服务接口客户端本地代理( `local` )相关。实际目前已经废弃，使用 `stub` 属性，参见 `AbstractInterfaceConfig#setLocal` 方法。
+        // 处理服务接口客户端本地代理( `local` )相关。实际目前已经废弃，使用 `stub` 属性，参见 `AbstractInterfaceConfig#setLocal` 方法。 @sjt 3
         if (local != null) {
             if ("true".equals(local)) {
                 local = interfaceName + "Local";
@@ -368,7 +368,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 throw new IllegalStateException("The local implementation class " + localClass.getName() + " not implement interface " + interfaceName);
             }
         }
-        // 处理服务接口客户端本地代理( `stub` )相关
+        // 处理服务接口客户端本地代理( `stub` )相关 @sjt 4
         if (stub != null) {
             // 设为 true，表示使用缺省代理类名，即：接口名 + Stub 后缀
             if ("true".equals(stub)) {
@@ -383,7 +383,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             if (!interfaceClass.isAssignableFrom(stubClass)) {
                 throw new IllegalStateException("The stub implementation class " + stubClass.getName() + " not implement interface " + interfaceName);
             }
-        }
+        }    // @sjt 5
              // 校验 ApplicationConfig 配置。
              checkApplication();
              // 校验 RegistryConfig 配置。
@@ -392,13 +392,13 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             checkProtocol();
              // 读取环境变量和 properties 配置到 ServiceConfig 对象。
             appendProperties(this);
-             // 校验 Stub 和 Mock 相关的配置
+             // 校验 Stub 和 Mock 相关的配置 @sjt 6
              checkStubAndMock(interfaceClass);
             // 服务路径，缺省为接口名
         if (path == null || path.length() == 0) {
             path = interfaceName;
         }
-        // 暴露服务
+        // 暴露服务 @sjt 7
         doExportUrls();
         /**
          * @From：[Dubbo源码阅读笔记1]（https://www.cnblogs.com/amwyyyy/p/8353504.html）

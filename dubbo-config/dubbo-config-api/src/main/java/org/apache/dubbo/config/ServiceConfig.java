@@ -443,10 +443,15 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         }
         unexported = true;
     }
-
+    /**
+     * @From： [dubbo服务暴露过程源码分析(https://my.oschina.net/u/146130/blog/1630870)
+    * 暴露url
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
+        ////获取注册中心信息 @sjt 1
         List<URL> registryURLs = loadRegistries(true);
+        //多个协议，暴露多次 @sjt 2
         for (ProtocolConfig protocolConfig : protocols) {
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }

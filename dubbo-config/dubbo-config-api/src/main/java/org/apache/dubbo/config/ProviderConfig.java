@@ -28,8 +28,9 @@ import org.apache.dubbo.remoting.telnet.TelnetHandler;
 import java.util.Arrays;
 
 /**
- * ProviderConfig
- *
+ * ProviderConfig 服务提供者缺省值配置。
+ * [dubbo文档-schema配置参考手册-dubbo:provider](http://dubbo.apache.org/zh-cn/docs/user/references/xml/dubbo-provider.html)
+ * 同时该标签为 <dubbo:service> 和 <dubbo:protocol> 标签的缺省值设置。
  * @export
  * @see org.apache.dubbo.config.ProtocolConfig
  * @see org.apache.dubbo.config.ServiceConfig
@@ -41,15 +42,27 @@ public class ProviderConfig extends AbstractServiceConfig {
     // ======== protocol default values, it'll take effect when protocol's attributes are not set ========
 
     // service IP addresses (used when there are multiple network cards available)
+    /**
+    * 服务主机名
+     * 多网卡选择或指定VIP及域名时使用，为空则自动查找本机IP，建议不要配置，让Dubbo自动获取本机IP
+    */
     private String host;
 
     // service port
+    /**
+     * @Deprecated 废弃 无法进行设置
+     * 服务端口
+    */
     private Integer port;
 
     // context path
+    /**
+    * TODO  WAHR?
+    */
     private String contextpath;
 
     // thread pool
+
     private String threadpool;
 
     // thread pool size (fixed size)
@@ -62,15 +75,27 @@ public class ProviderConfig extends AbstractServiceConfig {
     private Integer queues;
 
     // max acceptable connections
+    /**
+    * 服务提供者最大可接受连接数
+    */
     private Integer accepts;
 
     // protocol codec
+    /**
+    * 协议编码方式
+    */
     private String codec;
 
     // charset
+    /**
+    * 序列化编码
+    */
     private String charset;
 
     // payload max length
+    /**
+    * 请求及响应数据包大小限制，单位：字节
+    */
     private Integer payload;
 
     // buffer size

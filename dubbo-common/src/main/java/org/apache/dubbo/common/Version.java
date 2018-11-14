@@ -121,15 +121,20 @@ public final class Version {
         }
     }
 
+    /**
+    * 获得版本号version:MAINFEST.MF>jar>default
+    */
     public static String getVersion(Class<?> cls, String defaultVersion) {
         try {
             // find version info from MANIFEST.MF first
+            //从MAINFEST.MF中获取版本号
             String version = cls.getPackage().getImplementationVersion();
             if (version == null || version.length() == 0) {
                 version = cls.getPackage().getSpecificationVersion();
             }
             if (version == null || version.length() == 0) {
                 // guess version fro jar file name if nothing's found from MANIFEST.MF
+                //若获取不到，从 jar 包命名中可能带的版本号作为结果
                 CodeSource codeSource = cls.getProtectionDomain().getCodeSource();
                 if (codeSource == null) {
                     logger.info("No codeSource for class " + cls.getName() + " when getVersion, use default version " + defaultVersion);
@@ -157,6 +162,7 @@ public final class Version {
                     }
                 }
             }
+            //返回版本号。若不存在，返回默认版本号。
             // return default version if no version info is found
             return version == null || version.length() == 0 ? defaultVersion : version;
         } catch (Throwable e) {

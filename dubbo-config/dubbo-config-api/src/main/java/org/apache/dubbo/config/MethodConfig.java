@@ -22,7 +22,7 @@ import org.apache.dubbo.config.support.Parameter;
 import java.util.List;
 
 /**
- * MethodConfig
+ * MethodConfig：方法级配置
  *
  * @export
  */
@@ -31,47 +31,101 @@ public class MethodConfig extends AbstractMethodConfig {
     private static final long serialVersionUID = 884908855422675941L;
 
     // method name
+    /**
+    * 方法名[必填]
+    */
     private String name;
 
     // stat
+    /**
+    * @Deprecated 废弃
+    */
     private Integer stat;
 
     // whether to retry
+    /**
+     * @Deprecated 废弃
+     */
     private Boolean retry;
 
     // if it's reliable
+    /**
+     * @Deprecated 废弃
+     */
     private Boolean reliable;
 
     // thread limits for method invocations
+    /**
+    * 每个服务每个方法最大使用线程数
+     * 此属性只在<dubbo:method>作为<dubbo:service>子标签时有效
+    */
     private Integer executes;
 
     // if it's deprecated
+    /**
+    * 服务方法是否过时
+     * 此属性只在<dubbo:method>作为<dubbo:service>子标签时有效
+     * 缺省[false]
+    */
     private Boolean deprecated;
 
     // whether to enable sticky
+    /**
+    * 是否启用粘性配置
+     * 说明：设置true 该接口上的所有方法使用同一个provider.如果需要更复杂的规则，请使用用路由
+     * 缺省：false
+    */
     private Boolean sticky;
 
     // whether need to return
+    /**
+     * 方法调用是否需要返回值
+     * async设置为true时才生效
+     * 如果设置为true，则返回future，或回调onreturn等方法  WHAT(future)
+     * 如果设置为false，则请求发送成功后直接返回Null
+    */
     private Boolean isReturn;
 
     // callback instance when async-call is invoked
+    /**
+    *调用异步调用时的回调实例
+     * 方法执行前拦截
+    */
     private Object oninvoke;
 
     // callback method when async-call is invoked
+    /**
+    *调用异步调用时的回调方法
+    */
     private String oninvokeMethod;
 
     // callback instance when async-call is returned
+    /**
+    * 返回异步调用时的回调实例
+     * 方法执行返回后拦截
+    */
     private Object onreturn;
 
     // callback method when async-call is returned
+    /**
+    * 返回异步调用时的回调方法
+    */
     private String onreturnMethod;
 
     // callback instance when async-call has exception thrown
+    /**
+    * 当异步调用抛出异常时的回调实例
+    */
     private Object onthrow;
 
     // callback method when async-call has exception thrown
+    /**
+    *当异步调用有异常抛出时的回调方法
+    */
     private String onthrowMethod;
-
+    /**
+    * 自定义参数
+    */
     private List<ArgumentConfig> arguments;
 
     @Parameter(excluded = true)

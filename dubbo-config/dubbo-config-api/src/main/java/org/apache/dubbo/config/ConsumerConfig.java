@@ -17,7 +17,7 @@
 package org.apache.dubbo.config;
 
 /**
- * ConsumerConfig
+ * ConsumerConfig: 服务消费者缺省值配置。同时该标签为 <dubbo:reference> 标签的缺省值设置。
  *
  * @export
  */
@@ -29,12 +29,16 @@ public class ConsumerConfig extends AbstractReferenceConfig {
     private Boolean isDefault;
 
     // networking framework client uses: netty, mina, etc.
+
     private String client;
 
     // consumer thread pool type: cached, fixed, limit, eager
+
+    //# 2114 消费者可以配置线程池
     private String threadpool;
 
     // consumer threadpool core thread size
+
     private Integer corethreads;
 
     // consumer threadpool thread size
